@@ -7,7 +7,9 @@
 #ifndef FXOS8700CQ_H_
 #define FXOS8700CQ_H_
 
-#include <Arduino.h> // for byte data type
+#ifdef ARDUINO
+#include <Arduino.h> // for uint8_t data type
+#endif
 
 // register addresses
 #define FXOS8700CQ_STATUS           0x00
@@ -178,12 +180,12 @@ class FXOS8700CQ
 	uint8_t accelODR;
 	uint8_t magOSR;
 
-	FXOS8700CQ(byte addr);
+	FXOS8700CQ(uint8_t addr);
 
 	// Register functions
-	void writeReg(byte reg, byte value);
-	byte readReg(byte reg);
-	void readRegs(byte startReg, uint8_t count, byte dest[]);
+	void writeReg(uint8_t reg, uint8_t value);
+	uint8_t readReg(uint8_t reg);
+	void readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
 	// FXOS8700CQ functions
 	// Initialization & Termination
@@ -202,7 +204,7 @@ class FXOS8700CQ
 
 	private:
 	// Sensor address
-	byte address;
+	uint8_t address;
 };
 
 #endif

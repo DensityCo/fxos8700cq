@@ -1,11 +1,14 @@
+#include <stdint.h>
+#ifdef ARDUINO
 #include <Wire.h>
+#endif
 #include <math.h>
 
-#include <FXOS8700CQ.h>
+#include "fxos8700cq.h"
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-FXOS8700CQ::FXOS8700CQ(byte addr)
+FXOS8700CQ::FXOS8700CQ(uint8_t addr)
 {
 	address = addr;
 	accelFSR = AFS_2g;     // Set the scale below either 2, 4 or 8
@@ -14,41 +17,44 @@ FXOS8700CQ::FXOS8700CQ(byte addr)
 }
 
 // Writes a register
-void FXOS8700CQ::writeReg(byte reg, byte value)
+void FXOS8700CQ::writeReg(uint8_t reg, uint8_t value)
 {
+#ifdef ARDUINO
 	Wire.beginTransmission(address);
 	Wire.write(reg);
 	Wire.write(value);
 	Wire.endTransmission();
+#endif
 }
 
 // Reads a register
-byte FXOS8700CQ::readReg(byte reg)
+uint8_t FXOS8700CQ::readReg(uint8_t reg)
 {
-	byte value;
-
+	uint8_t value;
+#ifdef ARDUINO
 	Wire.beginTransmission(address);
 	Wire.write(reg);
 	Wire.endTransmission();
 	Wire.requestFrom(address, (uint8_t)1);
 	value = Wire.read();
 	Wire.endTransmission();
-
+#endif
 	return value;
 }
 
-void FXOS8700CQ::readRegs(byte reg, uint8_t count, byte dest[])
+void FXOS8700CQ::readRegs(uint8_t reg, uint8_t count, uint8_t dest[])
 {
 	uint8_t i = 0;
-
+#ifdef ARDUINO
 	Wire.beginTransmission(address);   // Initialize the Tx buffer
 	Wire.write(reg);            	   // Put slave register address in Tx buffer
 	Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
-	Wire.requestFrom(address, count);  // Read bytes from slave register address 
+	Wire.requestFrom(address, count);  // Read uint8_ts from slave register address 
 
 	while (Wire.available()) {
 		dest[i++] = Wire.read();   // Put read results in the Rx buffer
 	}
+#endif
 }
 
 // Read the accelerometer data
@@ -83,7 +89,7 @@ void FXOS8700CQ::readTempData()
 // It must be in standby for modifying most registers
 void FXOS8700CQ::standby()
 {
-	byte c = readReg(FXOS8700CQ_CTRL_REG1);
+	uint8_t c = readReg(FXOS8700CQ_CTRL_REG1);
 	writeReg(FXOS8700CQ_CTRL_REG1, c & ~(0x01));
 }
 
@@ -91,7 +97,7 @@ void FXOS8700CQ::standby()
 // Needs to be in this mode to output data.
 void FXOS8700CQ::active()
 {
-	byte c = readReg(FXOS8700CQ_CTRL_REG1);
+	uint8_t c = readReg(FXOS8700CQ_CTRL_REG1);
 	writeReg(FXOS8700CQ_CTRL_REG1, c | 0x01);
 }
 
