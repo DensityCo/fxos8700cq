@@ -1,0 +1,10 @@
+installed.host
+installed.target
+downloads
+build
+*.swp
+.DS_Store
+tags
+build.tests
+build.libdensityd/
+build*
