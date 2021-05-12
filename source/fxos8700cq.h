@@ -1,3 +1,4 @@
+#include <string>
 /*
  * FXOS8700CQ
  * Author: Matt Warner <mlw2224@rit.edu>
@@ -189,7 +190,9 @@ class FXOS8700CQ
 
 	// FXOS8700CQ functions
 	// Initialization & Termination
-	void init(void);
+
+    bool open_linux(const std::string path, const std::string address);
+	void open_arduino(void);
 	void standby(void);
 	void active(void);
 

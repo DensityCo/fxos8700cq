@@ -101,7 +101,11 @@ void FXOS8700CQ::active()
 	writeReg(FXOS8700CQ_CTRL_REG1, c | 0x01);
 }
 
-void FXOS8700CQ::init()
+bool open_linux(const std::string path, const std::string address)
+{
+}
+
+void FXOS8700CQ::open_arduino()
 {
 	standby();  // Must be in standby to change registers
 
