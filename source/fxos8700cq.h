@@ -131,6 +131,43 @@
 #define FXOS8700CQ_A_FFMT_THS_Z_MSB 0x77
 #define FXOS8700CQ_A_FFMT_THS_Z_LSB 0x78
 
+
+typedef struct device_register_generic {
+	/**
+	 * Bit 7 of the register.
+	 */
+	unsigned char bit7;
+	/**
+	 * Bit 6 of the register.
+	 */
+	unsigned char bit6;
+	/**
+	 * Bit 5 of the register.
+	 */
+	unsigned char bit5;
+	/**
+	 * Bit 4 of the register.
+	 */
+	unsigned char bit4;
+	/**
+	 * Bit 3 of the register.
+	 */
+	unsigned char bit3;
+	/**
+	 * Bit 2 of the register.
+	 */
+	unsigned char bit2;
+	/**
+	 * Bit 1 of the register.
+	 */
+	unsigned char bit1;
+	/**
+	 * Bit 0 of the register.
+	 */
+	unsigned char bit0;
+} device_register_generic;
+
+
 // Set initial input parameters
 enum accelFSR {
 	AFS_2g = 0,
@@ -181,27 +218,29 @@ class FXOS8700CQ
 	uint8_t accelODR;
     uint8_t magOSR;
 
+    // i2c linux file handle
+    int file_handle;
+
     FXOS8700CQ(uint8_t addr);
     FXOS8700CQ(uint8_t addr, std::string device_path);
 
 	// Register functions
-	void writeReg(uint8_t reg, uint8_t value);
-    void writeReg_linux(uint8_t reg, uint8_t value);
-	uint8_t readReg(uint8_t reg);
-	void readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
+	bool writeReg(uint8_t reg, uint8_t value);
+	uint8_t readReg_arduino(uint8_t reg);
+	void readRegs_arduino(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
 	// FXOS8700CQ functions
 	// Initialization & Termination
 
     bool open_linux(const std::string path, const std::string address);
 	void open_arduino(void);
-	void standby(void);
-	void active(void);
+	void standby_arduino(void);
+	void active_arduino(void);
 
 	// Query sensor data
-	void readAccelData(void);
-	void readMagData(void);
-	void readTempData(void);
+	void readAccelData_arduino(void);
+	void readMagData_arduino(void);
+	void readTempData_arduino(void);
 
 	// Resolution
 	float getAres(void);
@@ -211,6 +250,7 @@ class FXOS8700CQ
 	// Sensor address
 	uint8_t address;
     std::string path;
+    device_register_generic i2c_register;
 };
 
 #endif
