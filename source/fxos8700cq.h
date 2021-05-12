@@ -226,7 +226,7 @@ class FXOS8700CQ
 
 	// Register functions
 	bool writeReg(uint8_t reg, uint8_t value);
-	uint8_t readReg_arduino(uint8_t reg);
+	bool readReg(uint8_t reg, uint8_t &value);
 	void readRegs_arduino(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
 	// FXOS8700CQ functions
@@ -234,13 +234,13 @@ class FXOS8700CQ
 
     bool open_linux(const std::string path, const std::string address);
 	void open_arduino(void);
-	void standby_arduino(void);
-	void active_arduino(void);
+	void standby(void);
+	void active(void);
 
 	// Query sensor data
 	void readAccelData_arduino(void);
 	void readMagData_arduino(void);
-	void readTempData_arduino(void);
+	void readTempData(void);
 
 	// Resolution
 	float getAres(void);

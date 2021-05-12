@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include "fxos8700cq.h"
+#include <iostream>
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -90,9 +91,9 @@ static int get_i2c_register(int file, unsigned char addr, unsigned char reg, uns
 }
 
 // Reads a register
-uint8_t FXOS8700CQ::readReg_arduino(uint8_t reg)
+bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
 {
-	uint8_t value = 0;
+    bool result = false;
 #ifdef ARDUINO
 	Wire.beginTransmission(address);
 	Wire.write(reg);
@@ -101,13 +102,12 @@ uint8_t FXOS8700CQ::readReg_arduino(uint8_t reg)
 	value = Wire.read();
 	Wire.endTransmission();
 #else
-//    unsigned char value;
     if(!get_i2c_register(file_handle, address, reg, &value)) 
     {
-//        snprintf((char*)&device->last_error, ERROR_SIZE, "Unable to get register %hhu: %s : %u", reg, strerror(errno), errno);
-        return false;
+        std::cerr << "error reading register.  reg: " << reg << "address" << address << std::endl;
     }
-    
+    else
+    {
         i2c_register.bit7 = (value & 0x80) > 0;
         i2c_register.bit6 = (value & 0x40) > 0;
         i2c_register.bit5 = (value & 0x20) > 0;
@@ -116,15 +116,10 @@ uint8_t FXOS8700CQ::readReg_arduino(uint8_t reg)
         i2c_register.bit2 = (value & 0x04) > 0;
         i2c_register.bit1 = (value & 0x02) > 0;
         i2c_register.bit0 = (value & 0x01) > 0;
-#if 0
-    if(byteData != NULL) 
-    {
-        *byteData = value;
+        result = true;
     }
 #endif
-
-#endif
-    return value;
+    return result;
 }
 
 
@@ -170,29 +165,50 @@ void FXOS8700CQ::readMagData_arduino()
 #endif
 
 // Read the temperature data
-#ifdef ARDUINO
-void FXOS8700CQ::readTempData_arduino()
+void FXOS8700CQ::readTempData()
 {
-	tempData = readReg(FXOS8700CQ_TEMP);
+    uint8_t t;
+
+	if (!readReg(FXOS8700CQ_TEMP, t))
+    {
+        std::cerr << "error reading temperature data";
+    }
+    else
+    {
+        tempData = (int8_t)t;
+    }
 }
-#endif
 
 // Put the FXOS8700CQ into standby mode.
 // It must be in standby for modifying most register
-#ifdef ARDUINO
-void FXOS8700CQ::standby_arduino()
+void FXOS8700CQ::standby()
 {
-	uint8_t c = readReg(FXOS8700CQ_CTRL_REG1);
-	writeReg(FXOS8700CQ_CTRL_REG1, c & ~(0x01));
+    uint8_t c;
+
+	if (readReg(FXOS8700CQ_CTRL_REG1, c))
+    {
+	    writeReg(FXOS8700CQ_CTRL_REG1, c & ~(0x01));
+    }
+    else
+    {
+        std::cerr << "error switching to standby mode" << std::endl;
+    }
 }
-#endif
 
 // Put the FXOS8700CQ into active mode.
 // Needs to be in this mode to output data.
-void FXOS8700CQ::active_arduino()
+void FXOS8700CQ::active()
 {
-	uint8_t c = readReg_arduino(FXOS8700CQ_CTRL_REG1);
-	writeReg(FXOS8700CQ_CTRL_REG1, c | 0x01);
+    uint8_t c;
+
+	if (readReg(FXOS8700CQ_CTRL_REG1, c))
+    {
+	    writeReg(FXOS8700CQ_CTRL_REG1, c | 0x01);
+    }
+    else
+    {
+        std::cerr << "error switching to active mode" << std::endl;
+    }
 }
 
 bool open_linux(const std::string path, const std::string address)
@@ -201,13 +217,23 @@ bool open_linux(const std::string path, const std::string address)
 
 void FXOS8700CQ::open_arduino()
 {
-	standby_arduino();  // Must be in standby to change registers
+	standby();  // Must be in standby to change registers
 
 	// Configure the accelerometer
 	writeReg(FXOS8700CQ_XYZ_DATA_CFG, accelFSR);  // Choose the full scale range to 2, 4, or 8 g.
 	//writeReg(FXOS8700CQ_CTRL_REG1, readReg(FXOS8700CQ_CTRL_REG1) & ~(0x38)); // Clear the 3 data rate bits 5:3
 	if (accelODR <= 7) 
-		writeReg(FXOS8700CQ_CTRL_REG1, readReg_arduino(FXOS8700CQ_CTRL_REG1) | (accelODR << 3));      
+    {
+        uint8_t temp_value;
+        if (readReg(FXOS8700CQ_CTRL_REG1, temp_value))
+        {
+		    writeReg(FXOS8700CQ_CTRL_REG1,  temp_value | (accelODR << 3));
+        }
+        else
+        {
+            std::cerr << "error opening fxos8700cq acclerometer" << std::endl;
+        }
+    }
 	//writeReg(FXOS8700CQ_CTRL_REG2, readReg(FXOS8700CQ_CTRL_REG2) & ~(0x03)); // clear bits 0 and 1
 	//writeReg(FXOS8700CQ_CTRL_REG2, readReg(FXOS8700CQ_CTRL_REG2) |  (0x02)); // select normal(00) or high resolution (10) mode
 
@@ -221,7 +247,7 @@ void FXOS8700CQ::open_arduino()
 	//writeReg(CTRL_REG4, readReg(CTRL_REG4) |  (0x1D)); // DRDY, Freefall/Motion, P/L and tap ints enabled  
 	//writeReg(CTRL_REG5, 0x01);  // DRDY on INT1, P/L and taps on INT2
 
-	active_arduino();  // Set to active to start reading
+	active();  // Set to active to start reading
 }
 
 // Get accelerometer resolution
