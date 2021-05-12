@@ -8,6 +8,15 @@
 
 // Public Methods //////////////////////////////////////////////////////////////
 
+FXOS8700CQ::FXOS8700CQ(uint8_t addr, std::string device_path)
+{
+    path = device_path;
+	address = addr;
+	accelFSR = AFS_2g;     // Set the scale below either 2, 4 or 8
+	accelODR = AODR_200HZ; // In hybrid mode, accel/mag data sample rates are half of this value
+	magOSR = MOSR_5;     // Choose magnetometer oversample rate
+}
+
 FXOS8700CQ::FXOS8700CQ(uint8_t addr)
 {
 	address = addr;
@@ -17,7 +26,18 @@ FXOS8700CQ::FXOS8700CQ(uint8_t addr)
 }
 
 // Writes a register
+//
 void FXOS8700CQ::writeReg(uint8_t reg, uint8_t value)
+{
+#ifdef ARDUINO
+	Wire.beginTransmission(address);
+	Wire.write(reg);
+	Wire.write(value);
+	Wire.endTransmission();
+#endif
+}
+
+void FXOS8700CQ::writeReg_linux(uint8_t reg, uint8_t value)
 {
 #ifdef ARDUINO
 	Wire.beginTransmission(address);

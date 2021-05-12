@@ -179,12 +179,14 @@ class FXOS8700CQ
 	// Sensor configuration
 	uint8_t accelFSR;
 	uint8_t accelODR;
-	uint8_t magOSR;
+    uint8_t magOSR;
 
-	FXOS8700CQ(uint8_t addr);
+    FXOS8700CQ(uint8_t addr);
+    FXOS8700CQ(uint8_t addr, std::string device_path);
 
 	// Register functions
 	void writeReg(uint8_t reg, uint8_t value);
+    void writeReg_linux(uint8_t reg, uint8_t value);
 	uint8_t readReg(uint8_t reg);
 	void readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
@@ -208,6 +210,7 @@ class FXOS8700CQ
 	private:
 	// Sensor address
 	uint8_t address;
+    std::string path;
 };
 
 #endif
