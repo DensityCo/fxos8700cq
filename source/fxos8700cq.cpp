@@ -123,9 +123,9 @@ bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
 }
 
 
-#ifdef ARDUINO
-void FXOS8700CQ::readRegs_arduino(uint8_t reg, uint8_t count, uint8_t dest[])
+void FXOS8700CQ::readRegs(uint8_t reg, uint8_t count, uint8_t dest[])
 {
+#ifdef ARDUINO
 	uint8_t i = 0;
 	Wire.beginTransmission(address);   // Initialize the Tx buffer
 	Wire.write(reg);            	   // Put slave register address in Tx buffer
@@ -135,12 +135,11 @@ void FXOS8700CQ::readRegs_arduino(uint8_t reg, uint8_t count, uint8_t dest[])
 	while (Wire.available()) {
 		dest[i++] = Wire.read();   // Put read results in the Rx buffer
 	}
-}
 #endif
+}
 
 // Read the accelerometer data
-#ifdef ARDUINO
-void FXOS8700CQ::readAccelData_arduino()
+void FXOS8700CQ::readAccelData()
 {
 	uint8_t rawData[6];  // x/y/z accel register data stored here
 
@@ -149,11 +148,9 @@ void FXOS8700CQ::readAccelData_arduino()
 	accelData.y = ((int16_t) rawData[2] << 8 | rawData[3]) >> 2;
 	accelData.z = ((int16_t) rawData[4] << 8 | rawData[5]) >> 2;
 }
-#endif
 
 // Read the magnometer data
-#ifdef ARDUINO
-void FXOS8700CQ::readMagData_arduino()
+void FXOS8700CQ::readMagData()
 {
 	uint8_t rawData[6];  // x/y/z accel register data stored here
 
@@ -162,7 +159,6 @@ void FXOS8700CQ::readMagData_arduino()
 	magData.y = ((int16_t) rawData[2] << 8 | rawData[3]) >> 2;
 	magData.z = ((int16_t) rawData[4] << 8 | rawData[5]) >> 2;
 }
-#endif
 
 // Read the temperature data
 void FXOS8700CQ::readTempData()
