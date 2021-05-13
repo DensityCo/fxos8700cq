@@ -108,6 +108,7 @@ bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
     }
     else
     {
+#if 0
         i2c_register.bit7 = (value & 0x80) > 0;
         i2c_register.bit6 = (value & 0x40) > 0;
         i2c_register.bit5 = (value & 0x20) > 0;
@@ -116,6 +117,7 @@ bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
         i2c_register.bit2 = (value & 0x04) > 0;
         i2c_register.bit1 = (value & 0x02) > 0;
         i2c_register.bit0 = (value & 0x01) > 0;
+#endif
         result = true;
     }
 #endif
@@ -123,8 +125,9 @@ bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
 }
 
 
-void FXOS8700CQ::readRegs(uint8_t reg, uint8_t count, uint8_t dest[])
+bool FXOS8700CQ::readRegs(uint8_t reg, uint8_t count, uint8_t dest[])
 {
+    bool result = true;
 #ifdef ARDUINO
 	uint8_t i = 0;
 	Wire.beginTransmission(address);   // Initialize the Tx buffer
@@ -132,9 +135,33 @@ void FXOS8700CQ::readRegs(uint8_t reg, uint8_t count, uint8_t dest[])
 	Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
 	Wire.requestFrom(address, count);  // Read uint8_ts from slave register address 
 
-	while (Wire.available()) {
+	while (Wire.available()) 
+    {
 		dest[i++] = Wire.read();   // Put read results in the Rx buffer
 	}
+#else
+    unsigned char outbuf;
+    struct i2c_rdwr_ioctl_data packets;
+    struct i2c_msg messages[2];
+
+    outbuf = reg;
+    messages[0].addr  = address;
+    messages[0].flags = 0;
+    messages[0].len   = sizeof(outbuf);
+    messages[0].buf   = &outbuf;
+
+    messages[1].addr  = address;
+    messages[1].flags = I2C_M_RD;
+    messages[1].len   = count;
+    messages[1].buf   = dest;
+
+    packets.msgs      = messages;
+    packets.nmsgs     = 2;
+    if(ioctl(file_handle, I2C_RDWR, &packets) < 0) 
+    {
+        result = false;
+    }
+    return result;
 #endif
 }
 
@@ -207,11 +234,7 @@ void FXOS8700CQ::active()
     }
 }
 
-bool open_linux(const std::string path, const std::string address)
-{
-}
-
-void FXOS8700CQ::open_arduino()
+void FXOS8700CQ::open()
 {
 	standby();  // Must be in standby to change registers
 

@@ -227,13 +227,12 @@ class FXOS8700CQ
 	// Register functions
 	bool writeReg(uint8_t reg, uint8_t value);
 	bool readReg(uint8_t reg, uint8_t &value);
-	void readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
+	bool readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
 	// FXOS8700CQ functions
 	// Initialization & Termination
 
-    bool open_linux(const std::string path, const std::string address);
-	void open_arduino(void);
+	void open(void);
 	void standby(void);
 	void active(void);
 
