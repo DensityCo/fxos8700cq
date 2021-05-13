@@ -11,10 +11,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -O0 -g")
 
 add_library(fxos8700cq SHARED fxos8700cq.cpp)
-#add_executable(mma8452-test mma8452-test.c)
+add_executable(fxos-test fxos-test.cpp)
 
-#target_link_libraries(mma8452-test mma8452)
+target_link_libraries(fxos-test fxos8700cq)
 install(TARGETS fxos8700cq DESTINATION lib)
-#install(TARGETS mma8452-test DESTINATION bin)
+install(TARGETS fxos-test DESTINATION bin)
 install(FILES fxos8700cq.h DESTINATION include)
 
