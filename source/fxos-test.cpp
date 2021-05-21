@@ -1,5 +1,6 @@
 #include "fxos8700cq.h"
 #include <iostream>
+#include <unistd.h>
 
 int main(int argc, char **argv)
 {
@@ -10,22 +11,17 @@ int main(int argc, char **argv)
 
     fxos.active();
 
-    std::cout << "data before sensor read" << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------" << std::endl;   
-    std::cout << "tempdata : " << fxos.tempData << std::endl;
-    std::cout << "acceldata: " << fxos.accelData.x << "," << fxos.accelData.y << "," << fxos.accelData.z << std::endl;
-    std::cout << "magdata  : " << fxos.magData.x << "," << fxos.magData.y << "," << fxos.magData.z << std::endl;
+    while(true)
+    {
+        sleep(0.1);
+        fxos.readAccelData();
+//    fxos.readMagData();
+//    fxos.readTempData();
 
-    fxos.readAccelData();
-    fxos.readMagData();
-    fxos.readTempData();
-
-    std::cout << "data after sensor read" << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------" << std::endl;   
-    std::cout << "tempdata : " << fxos.tempData << std::endl;
-    std::cout << "acceldata: " << fxos.accelData.x << "," << fxos.accelData.y << "," << fxos.accelData.z << std::endl;
-    std::cout << "magdata  : " << fxos.magData.x << "," << fxos.magData.y << "," << fxos.magData.z << std::endl;
-
+//    std::cout << "tempdata : " << fxos.tempData << std::endl;
+        std::cout << "acceldata: " << fxos.accelData.x << "," << fxos.accelData.y << "," << fxos.accelData.z << std::endl;
+//    std::cout << "magdata  : " << fxos.magData.x << "," << fxos.magData.y << "," << fxos.magData.z << std::endl;
+    }
     return 0;
 }
 
