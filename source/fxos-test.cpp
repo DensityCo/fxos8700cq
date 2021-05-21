@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    FXOS8700CQ fxos(0x01, "/dev/i2c-1");
+    FXOS8700CQ fxos(0x1e, "/dev/i2c-0");
 
     fxos.open();
     std::cout << "fxos opened." << std::endl;
