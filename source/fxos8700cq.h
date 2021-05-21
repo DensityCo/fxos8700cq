@@ -232,7 +232,7 @@ class FXOS8700CQ
 	// FXOS8700CQ functions
 	// Initialization & Termination
 
-	void open(void);
+	bool open_sensor(void);
 	void standby(void);
 	void active(void);
 

@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     FXOS8700CQ fxos(0x1c, "/dev/i2c-2");
 
-    fxos.open();
+    fxos.open_sensor();
     std::cout << "fxos opened." << std::endl;
 
     fxos.active();

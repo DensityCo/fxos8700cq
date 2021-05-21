@@ -1,14 +1,16 @@
 #include <stdint.h>
 #ifdef ARDUINO
 #include <Wire.h>
-#endif
+#else
 #include <math.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
 #include "fxos8700cq.h"
 #include <iostream>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -234,13 +236,19 @@ void FXOS8700CQ::active()
     }
 }
 
-void FXOS8700CQ::open()
+bool FXOS8700CQ::open_sensor()
 {
-	standby();  // Must be in standby to change registers
+    bool result = false;
+
+    file_handle = open(path.c_str(), O_RDWR); 
+
+    if (file_handle >= 0)
+    {
+    standby();  // Must be in standby to change registers
 
 	// Configure the accelerometer
 	writeReg(FXOS8700CQ_XYZ_DATA_CFG, accelFSR);  // Choose the full scale range to 2, 4, or 8 g.
-	//writeReg(FXOS8700CQ_CTRL_REG1, readReg(FXOS8700CQ_CTRL_REG1) & ~(0x38)); // Clear the 3 data rate bits 5:3
+
 	if (accelODR <= 7) 
     {
         uint8_t temp_value;
@@ -253,20 +261,15 @@ void FXOS8700CQ::open()
             std::cerr << "error opening fxos8700cq acclerometer" << std::endl;
         }
     }
-	//writeReg(FXOS8700CQ_CTRL_REG2, readReg(FXOS8700CQ_CTRL_REG2) & ~(0x03)); // clear bits 0 and 1
-	//writeReg(FXOS8700CQ_CTRL_REG2, readReg(FXOS8700CQ_CTRL_REG2) |  (0x02)); // select normal(00) or high resolution (10) mode
 
 	// Configure the magnetometer
 	writeReg(FXOS8700CQ_M_CTRL_REG1, 0x80 | magOSR << 2 | 0x03); // Set auto-calibration, set oversampling, enable hybrid mode 
 		                                     
-	// Configure interrupts 1 and 2
-	//writeReg(CTRL_REG3, readReg(CTRL_REG3) & ~(0x02)); // clear bits 0, 1 
-	//writeReg(CTRL_REG3, readReg(CTRL_REG3) |  (0x02)); // select ACTIVE HIGH, push-pull interrupts    
-	//writeReg(CTRL_REG4, readReg(CTRL_REG4) & ~(0x1D)); // clear bits 0, 3, and 4
-	//writeReg(CTRL_REG4, readReg(CTRL_REG4) |  (0x1D)); // DRDY, Freefall/Motion, P/L and tap ints enabled  
-	//writeReg(CTRL_REG5, 0x01);  // DRDY on INT1, P/L and taps on INT2
-
 	active();  // Set to active to start reading
+    result = true;
+    }
+
+    return result;
 }
 
 // Get accelerometer resolution
