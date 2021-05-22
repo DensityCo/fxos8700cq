@@ -223,6 +223,7 @@ class FXOS8700CQ
 
     FXOS8700CQ(uint8_t addr);
     FXOS8700CQ(uint8_t addr, std::string device_path);
+    FXOS8700CQ();
 
 	// Register functions
 	bool writeReg(uint8_t reg, uint8_t value);

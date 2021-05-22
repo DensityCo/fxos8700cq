@@ -31,6 +31,13 @@ FXOS8700CQ::FXOS8700CQ(uint8_t addr)
 	magOSR = MOSR_5;     // Choose magnetometer oversample rate
 }
 
+FXOS8700CQ::FXOS8700CQ()
+{
+	accelFSR = AFS_2g;     // Set the scale below either 2, 4 or 8
+	accelODR = AODR_200HZ; // In hybrid mode, accel/mag data sample rates are half of this value
+	magOSR = MOSR_5;     // Choose magnetometer oversample rate
+}
+
 // Writes a register
 //
 bool FXOS8700CQ::writeReg(uint8_t reg, uint8_t value)
