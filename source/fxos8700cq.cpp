@@ -117,16 +117,6 @@ bool FXOS8700CQ::readReg(uint8_t reg, uint8_t &value)
     }
     else
     {
-#if 0
-        i2c_register.bit7 = (value & 0x80) > 0;
-        i2c_register.bit6 = (value & 0x40) > 0;
-        i2c_register.bit5 = (value & 0x20) > 0;
-        i2c_register.bit4 = (value & 0x10) > 0;
-        i2c_register.bit3 = (value & 0x08) > 0;
-        i2c_register.bit2 = (value & 0x04) > 0;
-        i2c_register.bit1 = (value & 0x02) > 0;
-        i2c_register.bit0 = (value & 0x01) > 0;
-#endif
         result = true;
     }
 #endif
