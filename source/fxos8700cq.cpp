@@ -173,6 +173,12 @@ void FXOS8700CQ::readAccelData()
 	accelData.x = ((int16_t) rawData[0] << 8 | rawData[1]) >> 2;
 	accelData.y = ((int16_t) rawData[2] << 8 | rawData[3]) >> 2;
 	accelData.z = ((int16_t) rawData[4] << 8 | rawData[5]) >> 2;
+
+    accelData.x -= (accelData.x > MAX_14BIT_VALUE) ? MAX_14BIT_SIGNED : 0;
+    accelData.y -= (accelData.y > MAX_14BIT_VALUE) ? MAX_14BIT_SIGNED : 0;
+    accelData.z -= (accelData.z > MAX_14BIT_VALUE) ? MAX_14BIT_SIGNED : 0;
+
+
 }
 
 // Read the magnometer data

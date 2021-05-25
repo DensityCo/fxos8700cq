@@ -12,6 +12,10 @@
 #include <Arduino.h> // for uint8_t data type
 #endif
 
+
+#define MAX_14BIT_VALUE  0x1FFF
+#define MAX_14BIT_SIGNED 0x4000
+
 // register addresses
 #define FXOS8700CQ_STATUS           0x00
 #define FXOS8700CQ_DR_STATUS        0x00
