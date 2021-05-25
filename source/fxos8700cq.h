@@ -1,3 +1,4 @@
+#include <string>
 /*
  * FXOS8700CQ
  * Author: Matt Warner <mlw2224@rit.edu>
@@ -7,7 +8,13 @@
 #ifndef FXOS8700CQ_H_
 #define FXOS8700CQ_H_
 
-#include <Arduino.h> // for byte data type
+#ifdef ARDUINO
+#include <Arduino.h> // for uint8_t data type
+#endif
+
+
+#define MAX_14BIT_VALUE  0x1FFF
+#define MAX_14BIT_SIGNED 0x4000
 
 // register addresses
 #define FXOS8700CQ_STATUS           0x00
@@ -128,6 +135,43 @@
 #define FXOS8700CQ_A_FFMT_THS_Z_MSB 0x77
 #define FXOS8700CQ_A_FFMT_THS_Z_LSB 0x78
 
+
+typedef struct device_register_generic {
+	/**
+	 * Bit 7 of the register.
+	 */
+	unsigned char bit7;
+	/**
+	 * Bit 6 of the register.
+	 */
+	unsigned char bit6;
+	/**
+	 * Bit 5 of the register.
+	 */
+	unsigned char bit5;
+	/**
+	 * Bit 4 of the register.
+	 */
+	unsigned char bit4;
+	/**
+	 * Bit 3 of the register.
+	 */
+	unsigned char bit3;
+	/**
+	 * Bit 2 of the register.
+	 */
+	unsigned char bit2;
+	/**
+	 * Bit 1 of the register.
+	 */
+	unsigned char bit1;
+	/**
+	 * Bit 0 of the register.
+	 */
+	unsigned char bit0;
+} device_register_generic;
+
+
 // Set initial input parameters
 enum accelFSR {
 	AFS_2g = 0,
@@ -176,18 +220,24 @@ class FXOS8700CQ
 	// Sensor configuration
 	uint8_t accelFSR;
 	uint8_t accelODR;
-	uint8_t magOSR;
+    uint8_t magOSR;
 
-	FXOS8700CQ(byte addr);
+    // i2c linux file handle
+    int file_handle;
+
+    FXOS8700CQ(uint8_t addr);
+    FXOS8700CQ(uint8_t addr, std::string device_path);
+    FXOS8700CQ();
 
 	// Register functions
-	void writeReg(byte reg, byte value);
-	byte readReg(byte reg);
-	void readRegs(byte startReg, uint8_t count, byte dest[]);
+	bool writeReg(uint8_t reg, uint8_t value);
+	bool readReg(uint8_t reg, uint8_t &value);
+	bool readRegs(uint8_t startReg, uint8_t count, uint8_t dest[]);
 
 	// FXOS8700CQ functions
 	// Initialization & Termination
-	void init(void);
+
+	bool open_sensor(void);
 	void standby(void);
 	void active(void);
 
@@ -202,7 +252,9 @@ class FXOS8700CQ
 
 	private:
 	// Sensor address
-	byte address;
+	uint8_t address;
+    std::string path;
+    device_register_generic i2c_register;
 };
 
 #endif
